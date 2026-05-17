@@ -1,3 +1,7 @@
+<img width="1913" height="940" alt="image" src="https://github.com/user-attachments/assets/e0f3a008-bfb5-4b5e-994e-92ac0e774f9b" />
+
+
+
 # StudyBuddy AI
 
 Upload lecture notes / PDFs and chat with them. A full-stack RAG agent built on Next.js, Google Gemini, and Pinecone — deployable to Vercel in minutes.
