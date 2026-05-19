@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
 
     // Gemini requires the conversation to start with a "user" turn. If the
     // first message is somehow not user, drop until we find one.
-    const history = toGeminiHistory(messages);
+    const firstUserIdx = messages.findIndex((m) => m.role === "user");
+    const trimmed = firstUserIdx === -1 ? messages : messages.slice(firstUserIdx);
+    const history = toGeminiHistory(trimmed);
     const result = await model.generateContentStream({ contents: history });
 
     const encoder = new TextEncoder();
