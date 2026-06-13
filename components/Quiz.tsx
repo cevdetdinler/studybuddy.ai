@@ -84,7 +84,7 @@ export function Quiz({ documentId }: { documentId: string | null }) {
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
       {questions.length > 0 && (
         <div className="space-y-6">
@@ -119,10 +119,10 @@ export function Quiz({ documentId }: { documentId: string | null }) {
                         </span>
                         <span className="flex-1">{c}</span>
                         {submitted && isCorrect && (
-                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
                         )}
                         {submitted && isPicked && !isCorrect && (
-                          <XCircle className="w-4 h-4 text-red-400" />
+                          <XCircle className="w-4 h-4 text-red-500" />
                         )}
                       </button>
                     );

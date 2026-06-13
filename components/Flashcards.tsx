@@ -81,7 +81,7 @@ export function Flashcards({ documentId }: { documentId: string | null }) {
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
       {cards.length > 0 && (
         <div>

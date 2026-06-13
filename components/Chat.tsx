@@ -19,18 +19,36 @@ type Message = {
 const SOURCES_MARKER_START = "__SOURCES__";
 const SOURCES_MARKER_END = "__END_SOURCES__";
 
-export function Chat({ documentId }: { documentId: string | null }) {
+export function Chat({
+  documentId,
+  initialPrompt,
+  onInitialPromptConsumed,
+}: {
+  documentId: string | null;
+  initialPrompt?: string;
+  onInitialPromptConsumed?: () => void;
+}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sentInitial = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming]);
 
-  async function send() {
-    const text = input.trim();
+  useEffect(() => {
+    if (initialPrompt && !sentInitial.current) {
+      sentInitial.current = true;
+      onInitialPromptConsumed?.();
+      send(initialPrompt);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function send(textArg?: string) {
+    const text = (textArg ?? input).trim();
     if (!text || streaming) return;
 
     const next: Message[] = [...messages, { role: "user", content: text }];
@@ -199,7 +217,7 @@ export function Chat({ documentId }: { documentId: string | null }) {
             style={{ minHeight: "42px", maxHeight: "150px" }}
           />
           <button
-            onClick={send}
+            onClick={() => send()}
             disabled={streaming || !input.trim()}
             className="bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg p-2.5 transition-colors"
             aria-label="Send"

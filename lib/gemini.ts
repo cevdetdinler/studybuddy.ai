@@ -1,4 +1,8 @@
-import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
+import {
+  GoogleGenerativeAI,
+  TaskType,
+  type EmbedContentRequest,
+} from "@google/generative-ai";
 
 if (!process.env.GEMINI_API_KEY) {
   console.warn("GEMINI_API_KEY is not set. API routes will fail until it is.");
@@ -17,11 +21,15 @@ export async function embed(
   if (texts.length === 0) return [];
   const model = gemini.getGenerativeModel({ model: EMBEDDING_MODEL });
   const result = await model.batchEmbedContents({
-    requests: texts.map((text) => ({
-      content: { role: "user", parts: [{ text }] },
-      taskType,
-      outputDimensionality: EMBEDDING_DIM,
-    })),
+    requests: texts.map(
+      (text) =>
+        ({
+          content: { role: "user", parts: [{ text }] },
+          taskType,
+          // supported by the API but missing from the SDK's request types
+          outputDimensionality: EMBEDDING_DIM,
+        }) as EmbedContentRequest,
+    ),
   });
   return result.embeddings.map((e) => e.values);
 }
@@ -34,8 +42,9 @@ export async function embedOne(
   const result = await model.embedContent({
     content: { role: "user", parts: [{ text }] },
     taskType,
+    // supported by the API but missing from the SDK's request types
     outputDimensionality: EMBEDDING_DIM,
-  });
+  } as EmbedContentRequest);
   return result.embedding.values;
 }
 

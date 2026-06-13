@@ -1,7 +1,7 @@
 "use client";
 
 import { Search as SearchIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Result = {
   id: string;
@@ -11,11 +11,29 @@ type Result = {
   text: string;
 };
 
-export function SearchPanel({ documentId }: { documentId: string | null }) {
-  const [q, setQ] = useState("");
+export function SearchPanel({
+  documentId,
+  initialQuery,
+  onInitialQueryConsumed,
+}: {
+  documentId: string | null;
+  initialQuery?: string;
+  onInitialQueryConsumed?: () => void;
+}) {
+  const [q, setQ] = useState(initialQuery || "");
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const ranInitial = useRef(false);
+
+  useEffect(() => {
+    if (initialQuery && !ranInitial.current) {
+      ranInitial.current = true;
+      onInitialQueryConsumed?.();
+      run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function run() {
     if (!q.trim()) return;
@@ -65,7 +83,7 @@ export function SearchPanel({ documentId }: { documentId: string | null }) {
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
       <div className="space-y-3">
         {results.map((r, i) => (

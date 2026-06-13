@@ -8,16 +8,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0a0a0f",
-        foreground: "#fafafa",
-        card: "#13131a",
-        border: "#27272f",
-        accent: "#7c3aed",
-        "accent-hover": "#8b5cf6",
-        muted: "#9ca3af",
+        background: "#EEF1F7",
+        foreground: "#0D1B4B",
+        card: "#FFFFFF",
+        border: "#DCE4F0",
+        accent: "#3D82DE",
+        "accent-hover": "#2E6FC9",
+        muted: "#5E6C92",
       },
       fontFamily: {
-        sans: ["system-ui", "-apple-system", "sans-serif"],
+        sans: ['"Inter Tight"', "system-ui", "-apple-system", "sans-serif"],
       },
     },
   },

@@ -49,7 +49,7 @@ export function Sidebar({ documents, activeDocId, onSelect, onUploaded, onDelete
     <aside className="w-72 shrink-0 border-r border-border bg-card/40 flex flex-col h-screen sticky top-0">
       <div className="p-4 border-b border-border">
         <h1 className="text-lg font-semibold flex items-center gap-2">
-          <span className="text-accent">📚</span> StudyBuddy AI
+          <span className="text-accent">🧠</span> StudyBuddy AI
         </h1>
         <p className="text-xs text-muted mt-1">Chat with your notes.</p>
       </div>
@@ -78,7 +78,7 @@ export function Sidebar({ documents, activeDocId, onSelect, onUploaded, onDelete
           multiple
           onChange={(e) => handleFiles(e.target.files)}
         />
-        {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+        {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
@@ -86,7 +86,7 @@ export function Sidebar({ documents, activeDocId, onSelect, onUploaded, onDelete
           onClick={() => onSelect(null)}
           className={`w-full text-left px-3 py-2 rounded-md text-sm mb-1 transition-colors ${
             activeDocId === null
-              ? "bg-accent/20 text-white"
+              ? "bg-accent/15 text-accent font-medium"
               : "hover:bg-card text-muted"
           }`}
         >
@@ -102,7 +102,7 @@ export function Sidebar({ documents, activeDocId, onSelect, onUploaded, onDelete
             key={d.documentId}
             className={`group flex items-center gap-2 px-2 py-2 rounded-md mb-1 transition-colors ${
               activeDocId === d.documentId
-                ? "bg-accent/20"
+                ? "bg-accent/15"
                 : "hover:bg-card"
             }`}
           >
@@ -122,7 +122,7 @@ export function Sidebar({ documents, activeDocId, onSelect, onUploaded, onDelete
                   onDelete(d.documentId);
                 }
               }}
-              className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-400 transition-opacity"
+              className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-opacity"
               aria-label="Delete document"
             >
               <Trash2 className="w-4 h-4" />
