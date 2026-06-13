@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const A = "https://qclay.design/lovable/sixsense";
@@ -740,6 +740,8 @@ export default function Landing() {
   const [docs, setDocs] = useState<UploadedDoc[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [needDoc, setNeedDoc] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function handleFiles(files: FileList | null) {
@@ -753,6 +755,7 @@ export default function Landing() {
         const res = await fetch("/api/upload", { method: "POST", body: fd });
         const j = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(j.error || `Upload failed (${res.status})`);
+        setNeedDoc(false);
         setDocs((d) => [
           ...d,
           { documentId: j.documentId, documentName: j.documentName },
@@ -775,6 +778,12 @@ export default function Landing() {
 
   function submit() {
     if (uploading) return;
+    // Require at least one uploaded document before starting a study session.
+    if (docs.length === 0) {
+      setNeedDoc(true);
+      fileRef.current?.click();
+      return;
+    }
     const params = new URLSearchParams();
     const q = input.trim();
     if (q) params.set("q", q);
@@ -1174,12 +1183,19 @@ export default function Landing() {
                   onChange={(e) => handleFiles(e.target.files)}
                 />
                 <button
-                  style={toolBtn}
+                  className={needDoc ? "upload-attention" : undefined}
+                  style={{
+                    ...toolBtn,
+                    border: needDoc
+                      ? "1px solid #5085CE"
+                      : toolBtn.border,
+                    background: needDoc ? "#E8F1FF" : toolBtn.background,
+                  }}
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
-                  aria-label="Attach notes (PDF, .txt, .md)"
+                  aria-label="Upload notes (PDF, .txt, .md)"
                 >
-                  <img src={`${A}/Capa_1.svg`} alt="" style={{ width: 14, height: 14 }} />
+                  <Upload size={14} color="#5085CE" strokeWidth={2} />
                 </button>
 
                 {(uploading || docs.length > 0 || uploadError) && (
@@ -1265,6 +1281,38 @@ export default function Landing() {
             </div>
           </div>
         </motion.div>
+
+        {/* 4f. Upload-first hint */}
+        {docs.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
+            onClick={() => fileRef.current?.click()}
+            className={needDoc ? "upload-attention" : undefined}
+            style={{
+              marginTop: 14,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 999,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 500,
+              border: needDoc
+                ? "1px solid #5085CE"
+                : "1px solid rgba(34,106,205,0.18)",
+              background: needDoc ? "#E8F1FF" : "rgba(255,255,255,0.6)",
+              color: needDoc ? "#3D82DE" : "rgba(13,27,75,0.6)",
+            }}
+          >
+            <Upload size={14} color={needDoc ? "#3D82DE" : "#5085CE"} strokeWidth={2} />
+            {needDoc
+              ? "Upload a document first to start studying"
+              : "Upload a document (PDF, .txt, or .md) to get started"}
+          </motion.div>
+        )}
       </main>
 
       {/* 5. Footer */}
@@ -1294,6 +1342,7 @@ export default function Landing() {
         </span>{" "}
         and have read our{" "}
         <span
+          onClick={() => setPrivacyOpen(true)}
           style={{
             color: "rgba(13,27,75,0.65)",
             textDecoration: "underline",
@@ -1304,6 +1353,94 @@ export default function Landing() {
           Privacy Policy.
         </span>
       </footer>
+
+      {/* 6. Privacy popover */}
+      {privacyOpen && (
+        <div
+          onClick={() => setPrivacyOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 60,
+            background: "rgba(13,27,75,0.28)",
+            backdropFilter: "blur(2px)",
+            WebkitBackdropFilter: "blur(2px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+          }}
+        >
+          <motion.div
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              width: 440,
+              maxWidth: "100%",
+              background: "#FFFFFF",
+              borderRadius: 16,
+              border: "1px solid rgba(34,106,205,0.12)",
+              boxShadow: "0 24px 60px rgba(13,27,75,0.22)",
+              padding: 24,
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setPrivacyOpen(false)}
+              aria-label="Close"
+              style={{
+                position: "absolute",
+                top: 14,
+                right: 14,
+                width: 24,
+                height: 24,
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: 18,
+                lineHeight: "24px",
+                color: "rgba(13,27,75,0.4)",
+              }}
+            >
+              ×
+            </button>
+            <h2
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                color: "#11315D",
+                margin: "0 0 12px",
+              }}
+            >
+              How we handle your documents
+            </h2>
+            <div
+              style={{
+                fontSize: 14,
+                lineHeight: "21px",
+                color: "rgba(13,27,75,0.7)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              <p style={{ margin: 0 }}>
+                When you upload a document, its text is sent to Google&apos;s
+                Gemini API to generate embeddings and stored in a private
+                Pinecone vector database. This is what powers search, chat,
+                flashcards, and quizzes over your notes.
+              </p>
+              <p style={{ margin: 0 }}>
+                We don&apos;t sell or share your documents with anyone else. You
+                can remove a document at any time using the × next to it, which
+                deletes its stored data.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
