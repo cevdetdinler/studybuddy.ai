@@ -49,7 +49,7 @@ export function Sidebar({ documents, activeDocId, onSelect, onUploaded, onDelete
     <aside className="w-72 shrink-0 border-r border-border bg-card/40 flex flex-col h-screen sticky top-0">
       <div className="p-4 border-b border-border">
         <h1 className="text-lg font-semibold flex items-center gap-2">
-          <span className="text-accent">🧠</span> StudyBuddy AI
+          StudyBuddy AI
         </h1>
         <p className="text-xs text-muted mt-1">Chat with your notes.</p>
       </div>
