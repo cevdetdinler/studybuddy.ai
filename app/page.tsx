@@ -297,15 +297,15 @@ type Card = {
 
 const CARDS: Card[] = [
   {
-    src: "image-1.png", w: 88.55, h: 68.46, x: -82, y: 123, r: -16, sx: -5, sy: 7,
+    src: "/subjects/maths.svg", w: 88.55, h: 68.46, x: -82, y: 123, r: -16, sx: -5, sy: 7,
     idleY: [0, -6, 0, 4, 0], idleR: [0, -2, 0, 2, 0], idleDur: 6,
   },
   {
-    src: "image-2.png", w: 105, h: 87, x: 68, y: 124, r: 24, sx: 35, sy: 33,
+    src: "/subjects/physics.svg", w: 105, h: 87, x: 68, y: 124, r: 24, sx: 35, sy: 33,
     idleY: [0, 5, 0, -5, 0], idleR: [0, 2, 0, -2, 0], idleDur: 7,
   },
   {
-    src: "image-3.png", w: 105, h: 96, x: -4, y: 148, r: -4, sx: -4, sy: 27,
+    src: "/subjects/chemistry.svg", w: 105, h: 96, x: -4, y: 148, r: -4, sx: -4, sy: 27,
     idleY: [0, -4, 0, 6, 0], idleR: [0, -1.5, 0, 1.5, 0], idleDur: 8,
   },
 ];
@@ -422,7 +422,7 @@ function FolderStack() {
             }}
           >
             <img
-              src={`${A}/${c.src}`}
+              src={c.src}
               alt=""
               style={{
                 width: "100%",
