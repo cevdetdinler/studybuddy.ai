@@ -1,5 +1,11 @@
 import { NextRequest } from "next/server";
-import { gemini, CHAT_MODEL, embedOne, toGeminiHistory } from "@/lib/gemini";
+import {
+  gemini,
+  CHAT_MODEL,
+  embedOne,
+  toGeminiHistory,
+  resolveGeminiError,
+} from "@/lib/gemini";
 import { queryChunks } from "@/lib/pinecone";
 import { CHAT_SYSTEM, formatContext } from "@/lib/prompts";
 
@@ -65,9 +71,15 @@ export async function POST(req: NextRequest) {
             `__SOURCES__${JSON.stringify(sourcesPayload)}__END_SOURCES__`,
           ),
         );
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) controller.enqueue(encoder.encode(text));
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) controller.enqueue(encoder.encode(text));
+          }
+        } catch (err) {
+          console.error("chat stream error:", err);
+          const { message } = resolveGeminiError(err, "Chat failed");
+          controller.enqueue(encoder.encode(`\n\n⚠️ ${message}`));
         }
         controller.close();
       },
@@ -81,8 +93,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("chat error:", err);
-    return new Response(JSON.stringify({ error: err?.message || "Chat failed" }), {
-      status: 500,
-    });
+    const { status, message } = resolveGeminiError(err, "Chat failed");
+    return new Response(JSON.stringify({ error: message }), { status });
   }
 }

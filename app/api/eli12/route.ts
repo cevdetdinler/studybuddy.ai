@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { embedOne, gemini, CHAT_MODEL } from "@/lib/gemini";
+import { embedOne, gemini, CHAT_MODEL, resolveGeminiError } from "@/lib/gemini";
 import { queryChunks } from "@/lib/pinecone";
 import { ELI12_SYSTEM, formatContext } from "@/lib/prompts";
 
@@ -49,9 +49,15 @@ export async function POST(req: NextRequest) {
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) controller.enqueue(encoder.encode(text));
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) controller.enqueue(encoder.encode(text));
+          }
+        } catch (err) {
+          console.error("eli12 stream error:", err);
+          const { message } = resolveGeminiError(err, "ELI12 failed");
+          controller.enqueue(encoder.encode(`\n\n⚠️ ${message}`));
         }
         controller.close();
       },
@@ -64,8 +70,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("eli12 error:", err);
-    return new Response(JSON.stringify({ error: err?.message || "ELI12 failed" }), {
-      status: 500,
-    });
+    const { status, message } = resolveGeminiError(err, "ELI12 failed");
+    return new Response(JSON.stringify({ error: message }), { status });
   }
 }

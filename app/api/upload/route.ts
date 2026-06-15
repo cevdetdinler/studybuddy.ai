@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 import { chunkText } from "@/lib/chunking";
-import { embed } from "@/lib/gemini";
+import { embed, resolveGeminiError } from "@/lib/gemini";
 import { upsertChunks, type ChunkMetadata } from "@/lib/pinecone";
 
 export const runtime = "nodejs";
@@ -90,9 +90,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("upload error:", err);
-    return NextResponse.json(
-      { error: err?.message || "Upload failed" },
-      { status: 500 },
-    );
+    const { status, message } = resolveGeminiError(err, "Upload failed");
+    return NextResponse.json({ error: message }, { status });
   }
 }

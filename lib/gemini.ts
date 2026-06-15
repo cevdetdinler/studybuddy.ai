@@ -48,6 +48,40 @@ export async function embedOne(
   return result.embedding.values;
 }
 
+// Shown to the user whenever Gemini is overloaded / rate-limited (503 / 429)
+// instead of leaking the raw SDK error string.
+export const HIGH_DEMAND_MESSAGE =
+  "Our services are experiencing a high spike in demand right now. This is usually temporary — please try again in a few moments.";
+
+/** True when the error is a transient Gemini overload / rate-limit (503 / 429). */
+export function isOverloadedError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err ?? "");
+  const status =
+    (err as any)?.status ??
+    (err as any)?.statusCode ??
+    (err as any)?.response?.status;
+  if (status === 503 || status === 429) return true;
+  return /\b(503|429)\b|service unavailable|overloaded|high demand|too many requests|rate.?limit|temporarily unavailable|please try again later/i.test(
+    message,
+  );
+}
+
+/**
+ * Maps any error thrown by a Gemini call to a user-facing `{ status, message }`.
+ * Overload / rate-limit errors get a friendly "high demand" message and a 503;
+ * everything else falls back to the route's generic message and a 500.
+ */
+export function resolveGeminiError(
+  err: unknown,
+  fallback: string,
+): { status: number; message: string } {
+  if (isOverloadedError(err)) {
+    return { status: 503, message: HIGH_DEMAND_MESSAGE };
+  }
+  const message = err instanceof Error ? err.message : String(err ?? "");
+  return { status: 500, message: message || fallback };
+}
+
 export type GeminiMessage = { role: "user" | "model"; parts: { text: string }[] };
 
 export function toGeminiHistory(

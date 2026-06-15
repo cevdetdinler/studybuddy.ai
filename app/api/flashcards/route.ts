@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { embedOne, gemini, CHAT_MODEL } from "@/lib/gemini";
+import { embedOne, gemini, CHAT_MODEL, resolveGeminiError } from "@/lib/gemini";
 import { queryChunks } from "@/lib/pinecone";
 import { flashcardPrompt, formatContext } from "@/lib/prompts";
 
@@ -58,9 +58,10 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("flashcards error:", err);
-    return NextResponse.json(
-      { error: err?.message || "Flashcard generation failed" },
-      { status: 500 },
+    const { status, message } = resolveGeminiError(
+      err,
+      "Flashcard generation failed",
     );
+    return NextResponse.json({ error: message }, { status });
   }
 }

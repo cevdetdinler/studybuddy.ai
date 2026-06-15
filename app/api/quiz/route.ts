@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { embedOne, gemini, CHAT_MODEL } from "@/lib/gemini";
+import { embedOne, gemini, CHAT_MODEL, resolveGeminiError } from "@/lib/gemini";
 import { queryChunks } from "@/lib/pinecone";
 import { formatContext, quizPrompt } from "@/lib/prompts";
 
@@ -58,9 +58,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("quiz error:", err);
-    return NextResponse.json(
-      { error: err?.message || "Quiz generation failed" },
-      { status: 500 },
-    );
+    const { status, message } = resolveGeminiError(err, "Quiz generation failed");
+    return NextResponse.json({ error: message }, { status });
   }
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { embedOne } from "@/lib/gemini";
+import { embedOne, resolveGeminiError } from "@/lib/gemini";
 import { queryChunks } from "@/lib/pinecone";
 
 export const runtime = "nodejs";
@@ -27,9 +27,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("search error:", err);
-    return NextResponse.json(
-      { error: err?.message || "Search failed" },
-      { status: 500 },
-    );
+    const { status, message } = resolveGeminiError(err, "Search failed");
+    return NextResponse.json({ error: message }, { status });
   }
 }
